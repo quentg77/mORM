@@ -1,0 +1,11 @@
+# node js
+node_modules/
+
+#Generated stuff
+lib/
+
+#LOGS
+*.log
+
+#operating system
+.DS_store
