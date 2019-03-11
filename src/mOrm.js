@@ -1,12 +1,12 @@
-import {isEmpty} from 'lodash';
-import {existsSync} from 'fs';
+import { isEmpty } from 'lodash';
+import { existsSync } from 'fs';
 import Path from 'path';
 import PostgreSQL from './engine/postgresql';
 
 export default class mOrm {
 	configPathName = "./mOrm.config.json";
 
-	async createConnection(dbConfig = {}) {
+	async createConnection(dbConfig = {}, extras = { entities: [] }) {
 		console.log("ON CREATE");
 
 		if (isEmpty(dbConfig)) {
@@ -14,7 +14,7 @@ export default class mOrm {
 				throw new Error("config file is required")
 			}
 
-			this.dbconfig = require(Path.join(__dirname, this.configPathName));
+			this.dbConfig = require(Path.join(__dirname, this.configPathName));
 
 			console.log("loaded config from file");
 		}
@@ -23,8 +23,6 @@ export default class mOrm {
 				const regexp = /^(.*):\/\/(.*):(.*)@(.*):(\d+)\/(.*)$/g;
 
 				const [, type, username, password, host, port, database] = regexp.exec(dbConfig.uri);
-
-				console.log(type)
 
 				this.dbConfig = {
 					type,
@@ -44,19 +42,27 @@ export default class mOrm {
 			}
 		}
 
+		this.dbConfig.synchronize =
+			dbConfig.synchronize !== undefined ? dbConfig.synchronize : false;
+
+		this.entities = {};
+		for (const entities of extras.entities) {
+			this.entities[entities.prototype.constructor.name] = entities;
+		}
+
 		console.log("connect ok");
 
 		switch (this.dbConfig.type) {
 			case 'postgres':
-				this.dbInstance = new PostgreSQL(this.dbConfig)
+				this.dbInstance = new PostgreSQL(this.dbConfig, this.entities)
 				break;
-			
+
 			// case 'postgres':
 			// 	this.dbInstance = new MySql(this.config)
 			// 	break;
 
 			default:
-				throw new Error("engine .. not supported")
+				throw new Error(`engine ${this.dbConfig.type} not supported`)
 		}
 		await this.dbInstance.initialize()
 	}

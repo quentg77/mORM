@@ -1,4 +1,12 @@
-export default class Student {
+import Entity from "./entity";
+
+export default class Student extends Entity {
+	constructor(dbInstance) {
+		super(dbInstance);
+
+		this.tableName = Student.meta().name;
+	}
+
 	static meta() {
 		return {
 			name: "Student",
