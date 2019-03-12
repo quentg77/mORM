@@ -66,4 +66,8 @@ export default class mOrm {
 		}
 		await this.dbInstance.initialize()
 	}
+
+	getEntity(name) {
+		return new this.entities[name](this.dbInstance);
+	}
 }
