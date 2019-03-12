@@ -81,7 +81,6 @@ export default class PostgreSQL extends Core {
 
 				this.client.query(query, (err, res) => {
 					if (err) {
-						console.log(query);
 						throw new Error(err.stack);
 					} else {
 						console.log(`Table ${tableName} has been created`);
@@ -178,9 +177,8 @@ export default class PostgreSQL extends Core {
 		let query = `UPDATE ${tableName} SET `;
 		let whereString = "";
 		let attributesString = "";
-		console.log(data);
+
 		const { where, attributes } = data;
-		console.log("test");
 
 		for (const [key, value] of Object.entries(where)) {
 			switch (typeof (value)) {
@@ -213,8 +211,6 @@ export default class PostgreSQL extends Core {
 		attributesString = attributesString.slice(0, -1);
 
 		query += attributesString + " WHERE " + whereString;
-
-		console.log(query);
 
 		return new Promise((resolve, reject) => {
 			this.client.query(query, (err, result) => {
